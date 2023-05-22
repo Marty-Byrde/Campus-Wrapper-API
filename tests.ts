@@ -1,5 +1,2 @@
-import { myFunction } from "./index"
+import * as index from "./index"
 
-async function testRun() {
-    await myFunction()
-}
