@@ -26,6 +26,12 @@ app.post("/", (req: Request, res: Response) => {
     res.send(body)
 })
 
+app.get("/course", async (req: Request, res: Response) => {
+    const { href } = req.body
+    const html = await openCampusCoursePage(href)
+    res.send(html)
+})
+
 async function createPage() {
     if (!browser) browser = await puppeteer.launch({
         devtools: true,
