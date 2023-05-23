@@ -2,8 +2,13 @@ import express, { Express, Request, Response } from "express"
 import bodyParser from "body-parser"
 import { join } from "path"
 import * as dotenv from 'dotenv'
+
 dotenv.config({ path: join(__dirname, ".env") })
 
+import * as puppeteer from 'puppeteer';
+import { Browser } from 'puppeteer';
+
+let browser: Browser;
 
 const app: Express = express()
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -20,3 +25,12 @@ app.post("/", (req: Request, res: Response) => {
     const body = req.body
     res.send(body)
 })
+
+async function createPage() {
+    if (!browser) browser = await puppeteer.launch({
+        devtools: true,
+        headless: "new",
+    })
+
+    return await browser.newPage()
+}
