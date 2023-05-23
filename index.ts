@@ -34,3 +34,31 @@ async function createPage() {
 
     return await browser.newPage()
 }
+
+export async function openCampusCoursePage(href: string){
+    const page = await createPage()
+
+    await page.goto(href)
+    await page.waitForFunction(async ()=>{
+        return await new Promise((resolve, reject) => {
+            setInterval(function () {
+                try {
+                    const hiddenSchedules = document.getElementById("weeklyEventsSparse")
+
+
+                    if (hiddenSchedules){
+                        resolve(true)
+                        clearInterval(this)
+                    }
+                } catch (e) {
+                    console.log(e)
+                }
+            }, 250); // Interval checkings
+        })
+    }, {timeout: 45 * 1000})
+
+    const html = await page.evaluate(() => document.documentElement.innerHTML)
+    await page.close()
+
+    return html
+}
