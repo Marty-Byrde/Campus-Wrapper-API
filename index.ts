@@ -41,6 +41,13 @@ app.get("/course", async (req: Request, res: Response) => {
     res.send(html)
 })
 
+app.post("/results", async (req: Request, res: Response) => {
+    const body = req.body
+    fs.writeFile("./transfer.json", JSON.stringify(body), ()=>{})
+    console.log(body)
+    res.send("OK")
+})
+
 async function createPage() {
     if (!browser) browser = await puppeteer.launch({
         devtools: true,
