@@ -83,8 +83,6 @@ export async function openCampusCoursePage(id: string){
         }, {timeout: 45 * 1000})
 
         const j = await result.remoteObject().value
-        console.log()
-        console.log(`There are ${j} schedules!`)
 
         const imgs = await page.evaluate(async () => {
             const informationConainer = document.getElementById("card-content-uebersicht")
