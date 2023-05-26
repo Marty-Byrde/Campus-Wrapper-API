@@ -8,6 +8,7 @@ dotenv.config({ path: join(__dirname, ".env") })
 
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
+import * as fs from "fs";
 
 let browser: Browser;
 
@@ -50,34 +51,41 @@ async function createPage() {
 export async function openCampusCoursePage(id: string){
     const page = await browser.newPage()
 
-    await page.goto(`https://campus.aau.at/studium/course/${id}`)
-    const result = await page.waitForFunction(async ()=>{
-        return await new Promise((resolve, reject) => {
-            setInterval(function () {
-                try {
-                    const hiddenSchedules = document.getElementById("weeklyEventsSparse")
-                    if(document.getElementById("weeklyEventsGrouped").childElementCount == 0) resolve(true)
+    try{
+        await page.goto(`https://campus.aau.at/studium/course/${id}`)
+        const result = await page.waitForFunction(async ()=>{
+            return await new Promise((resolve, reject) => {
+                setInterval(function () {
+                    try {
+                        const hiddenSchedules = document.getElementById("weeklyEventsSparse")
+                        if(document.getElementById("weeklyEventsGrouped").childElementCount == 0) resolve(true)
 
-                    const loading = document.getElementById("loadingMsg")
-                    if(loading) throw Error("Loading")
+                        const loading = document.getElementById("loadingMsg")
+                        if(loading) throw Error("Loading")
 
-                    if (hiddenSchedules){
-                        resolve(hiddenSchedules.children.length)
-                        clearInterval(this)
+                        if (hiddenSchedules){
+                            resolve(hiddenSchedules.children.length)
+                            clearInterval(this)
+                        }
+                    } catch (e) {
+                        console.log(e)
                     }
-                } catch (e) {
-                    console.log(e)
-                }
-            }, 250); // Interval checkings
-        })
-    }, {timeout: 45 * 1000})
+                }, 250); // Interval checkings
+            })
+        }, {timeout: 45 * 1000})
 
-    const j = await result.remoteObject().value
-    console.log()
-    console.log(`There are ${j} schedules!`)
+        const j = await result.remoteObject().value
+        console.log()
+        console.log(`There are ${j} schedules!`)
 
-    const html = await page.evaluate(() => document.documentElement.innerHTML)
-    await page.close()
+        const html = await page.evaluate(() => document.documentElement.innerHTML)
+        await page.close()
 
-    return html
+        return html
+    }catch(err){
+        console.log(`Error while opening course page: ${id}`)
+        console.log(err.stackTrace)
+    }
+
+
 }
