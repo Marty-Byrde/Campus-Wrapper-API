@@ -9,6 +9,7 @@ dotenv.config({ path: join(__dirname, ".env") })
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import * as fs from "fs";
+import {debug} from "util";
 
 let browser: Browser;
 
@@ -85,13 +86,68 @@ export async function openCampusCoursePage(id: string){
         console.log()
         console.log(`There are ${j} schedules!`)
 
-        const html = await page.evaluate(() => document.documentElement.innerHTML)
-        await page.close()
+        const imgs = await page.evaluate(async () => {
+            const informationConainer = document.getElementById("card-content-uebersicht")
+            const table = informationConainer.getElementsByTagName("dl")[0]
 
+            const images = []
+
+            const contributorContainer = table.children.item(1)
+            const contributors = contributorContainer.getElementsByTagName("ul")[0].children
+
+            for(let contributor of contributors){
+                console.log(contributor)
+                const name = contributor.getElementsByTagName("a")[0]
+                console.log(name)
+
+                name.click()
+                name.click()
+
+                await new Promise((resolve, reject) => setTimeout(() => resolve(true), 1000))
+                await new Promise((resolve, reject) => {
+                    setInterval(() => {
+                        const popover = document.getElementsByClassName("popover-img")
+                        if(popover.length === 0) return
+
+                        resolve(true)
+
+                    }, 100)
+                })
+
+                const popover = name.getAttribute("aria-describedby")
+
+                let img = document.getElementById(popover).getElementsByClassName("popover-img")
+                if(img.length > 0){
+                    images.push(`https://campus.aau.at${img[0].getAttribute("src")}`)
+                    console.log(`New contributor image: ${images.at(-1)}`)
+
+                }else{
+                    console.log("couldnt load the img of an contributor!")
+                }
+
+                debugger
+            }
+            return images
+        })
+
+        const html = await page.evaluate((imgs) => {
+            const script = document.createElement("script")
+            script.id = "contributor-images"
+            script.type = "application/json"
+            script.innerHTML = JSON.stringify(imgs)
+
+            document.documentElement.append(script)
+
+            return document.documentElement.innerHTML
+        }, imgs)
+
+
+
+        await page.close()
         return html
     }catch(err){
         console.log(`Error while opening course page: ${id}`)
-        console.log(err.stackTrace)
+        console.log(err)
     }
 
 
