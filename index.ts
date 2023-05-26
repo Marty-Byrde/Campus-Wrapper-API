@@ -124,8 +124,6 @@ export async function openCampusCoursePage(id: string){
                 }else{
                     console.log("couldnt load the img of an contributor!")
                 }
-
-                debugger
             }
             return images
         })
