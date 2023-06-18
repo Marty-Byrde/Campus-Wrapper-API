@@ -9,12 +9,10 @@ import * as fs from "fs";
 
 
 dotenv.config({ path: join(__dirname, ".env") })
-
-
-
-let browser: Browser;
-
 const app: Express = express()
+let browser: Browser;
+let count = 1;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '5gb' }));
 app.use(queue({ activeLimit: 10, queuedLimit: -1 }));
@@ -34,7 +32,7 @@ app.post("/", (req: Request, res: Response) => {
     res.send(body)
 })
 
-let count = 1;
+
 app.get("/course", async (req: Request, res: Response) => {
     const id = req.query.id as string
     console.log(`Handling incomming request for course: ${id}`)
