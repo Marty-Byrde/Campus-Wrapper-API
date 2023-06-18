@@ -14,6 +14,7 @@ const app: Express = express()
 let browser: Browser;
 let count = 1;
 const cache = new Map<string, string>()
+const enableCache = true;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '5gb' }));
@@ -41,7 +42,7 @@ app.post("/", (req: Request, res: Response) => {
 
 app.get("/course", async (req: Request, res: Response) => {
     const id = req.query.id as string
-    if(cache.has(id)){
+    if(cache.has(id) && enableCache){
         console.log(`Cache hit for course: ${id}`)
         res.send(cache.get(id))
         return
