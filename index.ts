@@ -6,12 +6,14 @@ import queue from 'express-queue';
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import * as fs from "fs";
+import {readdirSync, readFileSync} from "fs";
 
 
 dotenv.config({ path: join(__dirname, ".env") })
 const app: Express = express()
 let browser: Browser;
 let count = 1;
+const cache = new Map<string, string>()
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '5gb' }));
@@ -20,6 +22,10 @@ app.use(queue({ activeLimit: 10, queuedLimit: -1 }));
 app.listen(process.env.PORT, async () => {
     console.log(`Server has been started on port ${process.env.PORT}`)
     await createPage()
+    readdirSync("./cache").forEach(file => {
+        const content = readFileSync(`./cache/${file}`)
+        cache.set(file.split("_")[1].split(".")[0], content.toString())
+    })
 })
 
 app.get("/", (req: Request, res: Response) => {
@@ -35,9 +41,18 @@ app.post("/", (req: Request, res: Response) => {
 
 app.get("/course", async (req: Request, res: Response) => {
     const id = req.query.id as string
+    if(cache.has(id)){
+        console.log(`Cache hit for course: ${id}`)
+        res.send(cache.get(id))
+        return
+    }
+
     console.log(`Handling incomming request for course: ${id}`)
     const html = await openCampusCoursePage(id)
     console.log(`${count++} Finished Handling ${id}`)
+
+    //? caching results
+    fs.writeFileSync(`./cache/course_${id}.html`, html)
     res.send(html)
 })
 
