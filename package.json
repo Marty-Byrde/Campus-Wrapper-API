@@ -4,6 +4,7 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
+    "start": "ts-node index",
     "dev": "ts-node tests",
     "build": "tsc --build tsconfig.json",
     "prepublish": "tsc --build tsconfig.json"
