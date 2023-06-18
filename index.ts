@@ -2,14 +2,15 @@ import express, { Express, Request, Response } from "express"
 import bodyParser from "body-parser"
 import { join } from "path"
 import * as dotenv from 'dotenv'
-import fetch from "node-fetch"
 import queue from 'express-queue';
-dotenv.config({ path: join(__dirname, ".env") })
-
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import * as fs from "fs";
-import {debug} from "util";
+
+
+dotenv.config({ path: join(__dirname, ".env") })
+
+
 
 let browser: Browser;
 
